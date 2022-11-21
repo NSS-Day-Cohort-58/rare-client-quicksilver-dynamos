@@ -23,10 +23,19 @@ export const MyPosts = () => {
     const deletePost = (evt) => {
 
         return fetch(`http://localhost:8000/posts/${evt.target.value}`, {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+                "Authorization": `Token ${localStorage.getItem("auth_token")}`
+
+            }
         })
             .then(() => {
-                fetch(`http://localhost:8000/posts`)
+                fetch(`http://localhost:8000/posts?mine`,
+                {
+                    headers: {
+                        "Authorization": `Token ${localStorage.getItem("auth_token")}`
+                    }
+                })
                     .then(response => response.json())
                     .then((postArray) => {
                         setMyPosts(postArray)

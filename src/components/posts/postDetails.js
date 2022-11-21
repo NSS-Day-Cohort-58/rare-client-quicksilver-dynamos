@@ -24,7 +24,7 @@ export const PostDetails = () => {
     return <div className="postBox">
         <div className="postTitle">{post?.title}</div>
         <img className="postImage" src={post?.image_url} alt=""></img>
-        <Link to={`/users/${post?.user?.id}`} className="author">Author: {post?.user?.first_name} {post?.user?.last_name}</Link>
+        <Link to={`/users/${post?.author?.id}`} className="author">Author: {post?.user?.first_name} {post?.user?.last_name}</Link>
         <div className="postDate">Publication Date: {post?.publication_date} </div>
         <div className="postCategory"> Category: {post?.category?.label}</div>
         <div>Content: {post?.content} </div>

@@ -17,50 +17,8 @@ export const EditPost = () => {
     const [doneLoading, setLoading] = useState(false)
     const [checkedTags, setCheckedTags] = useState([])
     
-    useEffect(
-        () => {
-            tags.map((tag) => {
-                if(post.tags){
-                    post.tags.map((postTag) => {
-                        if (postTag.tag_id === tag.id) {
-                            tag.isChecked = true
-                        }
-                        else {
-                            tag.isChecked = false
-                        }
-                    })
-            } else {
-                tag.isChecked = false
-            }
-            })
-            setTags(tags)
-        },
-        [originalTags]
-    )
+
         
-
-
-
-    const matchingId = (id) => {
-
-        let idArray = []
-
-        post?.tags?.map((postTag) => {
-            if (postTag.id === id) {
-                idArray.push(postTag.id)
-            }
-        }
-        )
-
-        if (idArray.length > 0) {
-            return true
-        }
-
-        else {
-            return false
-        }
-        
-    }
 
     useEffect(
         () => {
@@ -73,7 +31,6 @@ export const EditPost = () => {
                 .then(post => setPost(post))
 
                     getCategories().then(categoryData => setCategories(categoryData))
-                    setLoading(true)
              
             
         },
@@ -81,12 +38,12 @@ export const EditPost = () => {
 
         useEffect(
             () => {
-
                 getTags().then((tagData) => {
                     let newTagsArray = []
                     for (const tag of tagData) {
                         if(post.tags){
-                            for (const postTag of post.tags) {
+                            let tagsFromPost = post.tags
+                            for (const postTag of tagsFromPost) {
                                 
                                 if (postTag.id === tag.id) {
                                     tag.isChecked = true
@@ -105,10 +62,12 @@ export const EditPost = () => {
                             newTagsArray.push(tag)
                         }
                     }
-                    debugger
                setTags(newTagsArray)
-               setOriginalTags(newTagsArray)})
-                
+               setOriginalTags(newTagsArray)
+               setLoading(true)
+            })
+              
+
             },
             [categories])
 
@@ -125,21 +84,24 @@ export const EditPost = () => {
             category_id: post.category_id,
             title: post.title,
             publication_date: post.publication_date,
-            post_image_url: post.image_url,
-            content: post.content
+            image_url: post.image_url,
+            content: post.content,
+            approved: true
         }
 
-        if(originalTags !== tags){
-            for (const tag of tags) {
-                let foundPostTag = post.tags.find(pt => {
-                    return pt.post_id === parseInt(postId) && pt.tag_id === tag.id
-                })
-                if(!foundPostTag && tag.isChecked){
-                    let postTagsToSendToAPI = {
-                        post_id: postId,
-                        tag_id: tag.id
-                    }
-                    fetch(`http://localhost:8000/posts/${post.id}/addTag`, { 
+
+            let postTagsToSendToAPI = {
+                post_id: postId,
+                tags: tags
+            }
+                fetch(`http://localhost:8000/posts/${post.id}/removeTags`, {
+                        method: "DELETE",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Token ${localStorage.getItem("auth_token")}`
+                        }
+                }).then(()=> {
+                    fetch(`http://localhost:8000/posts/${post.id}/addTags`, { 
                         method: "POST", 
                         headers: {
                             "Content-Type": "application/json",
@@ -149,22 +111,24 @@ export const EditPost = () => {
                         body: JSON.stringify(postTagsToSendToAPI)
                     })    
                     .then(response => response.json())
-                } else if (tag.isChecked === false && foundPostTag){
-                    let postTagToRemove = {
-                        post_id: postId,
-                        tag_id: tag.id
-                    }
-                    fetch(`http://localhost:8000/posts/${post.id}/removeTag`, {
-                        method: "DELETE",
-                        headers: {
-                            "content-type": "application/json",
-                            "Authorization": `Token ${localStorage.getItem("auth_token")}`
-                        },
-                        body: postTagToRemove
-                    })
-                }
-            }
-        }
+                })
+                    
+                // } else if (tag.isChecked === false && foundPostTag){
+                //     let postTagToRemove = {
+                //         post_id: postId,
+                //         tag_id: tag.id
+                //     }
+                //     fetch(`http://localhost:8000/posts/${post.id}/removeTag`, {
+                //         method: "DELETE",
+                //         headers: {
+                //             "content-type": "application/json",
+                //             "Authorization": `Token ${localStorage.getItem("auth_token")}`
+                //         },
+                //         body: postTagToRemove
+                    
+                
+            
+        
 
         return fetch(`http://localhost:8000/posts/${postId}`, {
             method: "PUT",
@@ -182,7 +146,6 @@ export const EditPost = () => {
     }
 
     const changeChecked = (e) => {
-        debugger
         const copy = structuredClone(tags)
         let tag = tags.find(t => t.id === parseInt(e.target.value))
         if(e.target.checked){
@@ -287,12 +250,11 @@ export const EditPost = () => {
         </fieldset>
         <fieldset>
             {
-                tags?.map(tag => <>
+                tags.map(tag => <>
                 <input type="checkbox" id={"tag-"+tag.id} name={tag.id}
                 value={tag.id} checked={tag.isChecked? "checked": ""}
                 onChange = {
                     (e) => {
-                        debugger
                         changeChecked(e)
                     }
                 }

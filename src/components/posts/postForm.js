@@ -81,6 +81,7 @@ export const PostForm = () => {
 
                 postId = updatedPost.id
                 
+                debugger
                 checked.map(check => {
                     const postTagsToSendToAPI = {
                         post_id: updatedPost.id,
@@ -197,13 +198,13 @@ export const PostForm = () => {
         <fieldset>
             {
                 tags.map(tag => <>
-                <input type="checkbox" id="tag" name="tag" value={tag.id}
+                <input type="checkbox" id={tag.id} name={tag.id} value={tag.id}
                 onChange = {
                     (evt) => {
                         handleCheck(evt)
                     }
                 }/>
-                <label htmlFor="tag" value={tag.id}>{tag.label}</label>
+                <label htmlFor={tag.id} value={tag.id}>{tag.label}</label>
                 </>
                 )
             }
