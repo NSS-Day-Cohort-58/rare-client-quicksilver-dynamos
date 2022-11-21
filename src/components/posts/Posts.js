@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 import { Link } from "react-router-dom"
 import { useState } from "react"
-import { getPosts } from "../../managers/PostManager"
+import { getPosts, searchPosts } from "../../managers/PostManager"
 import { getCategories } from "../../managers/CategoryManager"
 
 
@@ -13,6 +13,7 @@ export const Posts = () => {
     const [allCategories, setCategories] = useState([])
     const [selectedPosts, setSelectedPosts] = useState([])
     const [selectedCategory, setSelectedCategory] = useState()
+    const [searchTerms, updateSearchTerms] = useState("")
     
 
     useEffect(() => {
@@ -75,11 +76,16 @@ export const Posts = () => {
         setSelectedCategory(parseInt(e.target.value))
     }        
 
-    const titleSearch = (e) => {
-        if (e.key === 'Enter'){
-            console.log('enter key')
-        }
+    const searchTitle = (search) => {
+        searchPosts(search)
+        .then((posts) => {
+            setSelectedPosts(posts)
+        })
+        .catch(() => setSelectedPosts([]))
+
     }
+
+    
 //separate module for dropdown function
 //export const Categories
 //let html = <select id="category">
@@ -93,8 +99,16 @@ export const Posts = () => {
             {/* Displaying the value of fruit */}
             
             <br />
-            <label for="titleSearch" onKeyDown={(e) => titleSearch(e)}>Search posts by title</label>
-            <input id="titleSearch"></input><br />
+                <label htmlFor="titleSearch">Search posts by title</label>
+                <input name="titleSearch"
+                    type={"text"}
+                    placeholder="Search by Title"
+                    onChange={(evt) => {
+                        const searchTerm = evt.target.value
+                        updateSearchTerms(searchTerm)
+                    }}/>
+                <button name="titleSearch" onClick={() => searchTitle(searchTerms)}>Search</button>
+            <br />
             <select onChange={handleCategoryChange}> 
                 <option value={0}>Search by Category</option>
                         {/* Mapping through each fruit object in our fruits array

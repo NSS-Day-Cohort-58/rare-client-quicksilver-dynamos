@@ -39,3 +39,13 @@ export const getMyPosts = () => {
     })
         .then(response => response.json())
 }
+
+export const searchPosts = (search) => { 
+    return fetch(`http://localhost:8000/posts?search=${search}`, {
+        method: "GET",
+        headers: {
+            "Authorization": `Token ${localStorage.getItem("auth_token")}`
+        }
+    })
+        .then(response => response.json())
+}
