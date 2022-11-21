@@ -25,9 +25,9 @@ export const PostForm = () => {
     const handleCheck = (event) => {
         let updatedList = [...checked]
         if (event.target.checked) {
-            updatedList = [...checked, event.target.value]
+            updatedList = [...checked, parseInt(event.target.value)]
         } else {
-            updatedList.splice(checked.indexOf(event.target.value), 1)
+            updatedList.splice(checked.indexOf(parseInt(event.target.value)), 1)
         }
         setChecked(updatedList)
     }
@@ -81,13 +81,20 @@ export const PostForm = () => {
 
                 postId = updatedPost.id
                 
-                debugger
-                checked.map(check => {
+                let tagsArray = []
+                for (const check of checked) {
+                    let tempCheck = {
+                        id: check,
+                        isChecked: true
+                    }
+                    tagsArray.push(tempCheck)
+                }
                     const postTagsToSendToAPI = {
                         post_id: updatedPost.id,
-                        tag_id: parseInt(check)
+                        tags: tagsArray
                     }
-                    return fetch(`http://localhost:8000/posts/${updatedPost.id}/addTag`, { 
+                    
+                    return fetch(`http://localhost:8000/posts/${updatedPost.id}/addTags`, { 
                         method: "POST", 
                         headers: {
                             "Content-Type": "application/json",
@@ -98,7 +105,7 @@ export const PostForm = () => {
                     })    
                     .then(response => response.json())
                 })
-            })
+            
             .then(() => {
                 navigate(`/posts/${postId}`)
             })
